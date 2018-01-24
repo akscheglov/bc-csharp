@@ -7,6 +7,7 @@ using Org.BouncyCastle.Asn1.CryptoPro;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.Rosstandart;
 using Org.BouncyCastle.Asn1.TeleTrust;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.X9;
@@ -231,6 +232,8 @@ namespace Org.BouncyCastle.Security
             algorithms["GOST3411WITHECGOST3410"] = "ECGOST3410";
             algorithms[CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001.Id] = "ECGOST3410";
 
+            algorithms["GOST3411_2012_256WITHGOST3410_2012_256"] = "GOST3410_2012_256";
+            algorithms["GOST3411_2012_512WITHGOST3410_2012_512"] = "GOST3410_2012_512";
 
 
             oids["MD2withRSA"] = PkcsObjectIdentifiers.MD2WithRsaEncryption;
@@ -264,7 +267,10 @@ namespace Org.BouncyCastle.Security
 
             oids["GOST3410"] = CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94;
             oids["ECGOST3410"] = CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001;
-        }
+
+            oids["GOST3410_2012_256"] = RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256;
+            oids["GOST3410_2012_512"] = RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512;
+		}
 
         /// <summary>
         /// Returns an ObjectIdentifier for a given encoding.
@@ -521,6 +527,14 @@ namespace Org.BouncyCastle.Security
             if (mechanism.Equals("GOST3410"))
             {
                 return new Gost3410DigestSigner(new Gost3410Signer(), new Gost3411Digest());
+            }
+            if (mechanism.Equals("GOST3410_2012_256"))
+            {
+                return new Gost3410DigestSigner(new ECGost3410Signer(), new GOST3411_2012_256Digest());
+            }
+            if (mechanism.Equals("GOST3410_2012_512"))
+            {
+                return new Gost3410DigestSigner(new ECGost3410Signer(), new GOST3411_2012_512Digest());
             }
             if (mechanism.Equals("ECGOST3410"))
             {

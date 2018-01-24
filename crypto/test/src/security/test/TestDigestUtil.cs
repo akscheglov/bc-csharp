@@ -21,6 +21,8 @@ namespace Org.BouncyCastle.Security.Tests
         public void TestAlgorithms()
         {
 			CheckAlgorithm("GOST3411", new Gost3411Digest());
+			CheckAlgorithm("GOST3411_2012_256", new GOST3411_2012_256Digest());
+			CheckAlgorithm("GOST3411_2012_512", new GOST3411_2012_512Digest());
 			CheckAlgorithm("MD2", new MD2Digest());
             CheckAlgorithm("MD4", new MD4Digest());
             CheckAlgorithm("MD5", new MD5Digest());

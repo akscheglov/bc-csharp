@@ -5,8 +5,10 @@ using System.Text;
 
 using NUnit.Framework;
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.CryptoPro;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.Rosstandart;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
@@ -86,17 +88,6 @@ namespace Org.BouncyCastle.Security.Tests
             DsaPublicKeyParameters dsaPub = new DsaPublicKeyParameters(DSAPublicY, para);
 
             //
-            // ECGOST3410 parameters
-            //
-            IAsymmetricCipherKeyPairGenerator ecGostKpg = GeneratorUtilities.GetKeyPairGenerator("ECGOST3410");
-            ecGostKpg.Init(
-                new ECKeyGenerationParameters(
-                    CryptoProObjectIdentifiers.GostR3410x2001CryptoProA,
-                    new SecureRandom()));
-
-            AsymmetricCipherKeyPair ecGostPair = ecGostKpg.GenerateKeyPair();
-
-            //
             // GOST3410 parameters
             //
             IAsymmetricCipherKeyPairGenerator gostKpg = GeneratorUtilities.GetKeyPairGenerator("GOST3410");
@@ -107,9 +98,7 @@ namespace Org.BouncyCastle.Security.Tests
 
             AsymmetricCipherKeyPair gostPair = gostKpg.GenerateKeyPair();
 
-
-
-            //
+	        //
             // signer loop
             //
             byte[] shortMsg = new byte[] { 1, 4, 5, 6, 8, 8, 4, 2, 1, 3 };
@@ -146,6 +135,9 @@ namespace Org.BouncyCastle.Security.Tests
                 }
                 else if (cipherName == "ECGOST3410")
                 {
+                    AsymmetricCipherKeyPair ecGostPair = GetEcCipherKeyPair(
+                        "ECGOST3410",
+                        CryptoProObjectIdentifiers.GostR3410x2001CryptoProA);
                     signParams = ecGostPair.Private;
                     verifyParams = ecGostPair.Public;
                 }
@@ -153,6 +145,22 @@ namespace Org.BouncyCastle.Security.Tests
                 {
                     signParams = gostPair.Private;
                     verifyParams = gostPair.Public;
+                }
+                else if (cipherName == "GOST3410_2012_256")
+                {
+                   AsymmetricCipherKeyPair gost2012_256Pair = GetEcCipherKeyPair(
+                        "GOST3410_2012_256",
+                        RosstandartObjectIdentifiers.id_tc26_gost_3410_12_256_paramSetA);
+                    signParams = gost2012_256Pair.Private;
+                    verifyParams = gost2012_256Pair.Public;
+                }
+                else if (cipherName == "GOST3410_2012_512")
+                {
+                    AsymmetricCipherKeyPair gost2012_512Pair = GetEcCipherKeyPair(
+                        "GOST3410_2012_512",
+                        RosstandartObjectIdentifiers.id_tc26_gost_3410_12_512_paramSetA);
+                    signParams = gost2012_512Pair.Private;
+                    verifyParams = gost2012_512Pair.Public;
                 }
                 else
                 {
@@ -176,6 +184,13 @@ namespace Org.BouncyCastle.Security.Tests
 
                 Assert.IsTrue(signer.VerifySignature(sig), cipherName + " signer " + algorithm + " failed.");
             }
+        }
+
+        private static AsymmetricCipherKeyPair GetEcCipherKeyPair(string algorithm, DerObjectIdentifier identifier)
+        {
+            IAsymmetricCipherKeyPairGenerator kpg = GeneratorUtilities.GetKeyPairGenerator(algorithm);
+            kpg.Init(new ECKeyGenerationParameters(identifier, new SecureRandom()));
+            return kpg.GenerateKeyPair();
         }
     }
 }

@@ -97,13 +97,18 @@ namespace Org.BouncyCastle.Crypto.Signers
 			try
 			{
 				BigInteger[] sig = dsaSigner.GenerateSignature(hash);
-				byte[] sigBytes = new byte[64];
+				if (hash.Length != 32 && hash.Length != 64)
+					throw new InvalidOperationException("Unexpected hash length " + hash.Length);
+
+				// TBD: may be better to pass key size in constructor parameters.
+				int hashSize = hash.Length; // hash size 32 for 256 bit key and 64 for 512 bit key.
+				byte[] sigBytes = new byte[hashSize * 2];
 
 				// TODO Add methods to allow writing BigInteger to existing byte array?
 				byte[] r = sig[0].ToByteArrayUnsigned();
 				byte[] s = sig[1].ToByteArrayUnsigned();
-				s.CopyTo(sigBytes, 32 - s.Length);
-				r.CopyTo(sigBytes, 64 - r.Length);
+				s.CopyTo(sigBytes, hashSize - s.Length);
+				r.CopyTo(sigBytes, hashSize * 2 -r.Length);
 				return sigBytes;
 			}
 			catch (Exception e)
@@ -125,8 +130,12 @@ namespace Org.BouncyCastle.Crypto.Signers
 			BigInteger R, S;
 			try
 			{
-				R = new BigInteger(1, signature, 32, 32);
-				S = new BigInteger(1, signature, 0, 32);
+				if (signature.Length != 64 && signature.Length != 128)
+					throw new InvalidOperationException("Unexpected signature length " + signature.Length);
+
+				int len = signature.Length / 2; // 32 for 256 bit key and 64 for 512 bit key.
+				R = new BigInteger(1, signature, len, len);
+				S = new BigInteger(1, signature, 0, len);
 			}
 			catch (Exception e)
 			{

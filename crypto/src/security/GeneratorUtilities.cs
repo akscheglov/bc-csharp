@@ -174,6 +174,8 @@ namespace Org.BouncyCastle.Security
                 "GOST-3410-94");
             AddKpgAlgorithm("RSA",
                 "1.2.840.113549.1.1.1");
+            AddKpgAlgorithm("GOST3410_2012_256");
+            AddKpgAlgorithm("GOST3410_2012_512");
 
             AddDefaultKeySizeEntries(64, "DES");
             AddDefaultKeySizeEntries(80, "SKIPJACK");
@@ -301,8 +303,8 @@ namespace Org.BouncyCastle.Security
             if (canonicalName == "DSA")
                 return new DsaKeyPairGenerator();
 
-            // "EC", "ECDH", "ECDHC", "ECDSA", "ECGOST3410", "ECMQV"
-            if (Platform.StartsWith(canonicalName, "EC"))
+            // "EC", "ECDH", "ECDHC", "ECDSA", "ECGOST3410", "ECMQV", "GOST3410_2012_256", "GOST3410_2012_512"
+            if (Platform.StartsWith(canonicalName, "EC") || Platform.StartsWith(canonicalName, "GOST3410_2012"))
                 return new ECKeyPairGenerator(canonicalName);
 
             if (canonicalName == "ELGAMAL")
